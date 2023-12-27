@@ -13,7 +13,6 @@ private:
 	Mapchip* mapchip_;
 	CamelaMatrix* camelaMatrix_;
 
-
 	//座標
 	Vertex screenVertex_;
 	Vector2 scrollPos_;
@@ -22,7 +21,10 @@ private:
 	Matrix3x3 wvpVpMatrix_;
 
 	//イージング
-	
+	Easing move_;
+	Easing wait_;
+	Easing jump_;
+	Easing landing_;
 
 	bool isFlight_;
 
@@ -52,9 +54,9 @@ public:
 	void ColligionMapChip();
 
 	//プレイヤーのモーション
-	void MoveMotion();
+	void MoveMotion(char* keys);
+	void WaitMotion(char* keys);
 	void JumpMotion();
-	void StopMotion();
 	void LandingMotion();
 
 	void SetCamelaMatrix(CamelaMatrix* camelamatrix) { camelaMatrix_ = camelamatrix; }

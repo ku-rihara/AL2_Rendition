@@ -39,6 +39,12 @@ void Player::Init() {
 	//matrix
 	matrix_ = {};
 
+	//イージング
+	move_ = {};
+	wait_ = {};
+	jump_ = {};
+	landing_ = {};
+
 	//スケールとサイズ
 	scale_ = { 1.0f,1.0f };
 	size_ = { 48.0f,48.0f };
@@ -47,6 +53,13 @@ void Player::Init() {
 
 	//ローカル座標系
 	localVertex_ = {
+		{48.0f,48.0f},
+		{48.0f,48.0f},
+		{48.0f,48.0f},
+		{48.0f,48.0f},
+	};
+	//ローカル座標の保存用
+	localVertexSave_ = {
 		{48.0f,48.0f},
 		{48.0f,48.0f},
 		{48.0f,48.0f},
@@ -109,17 +122,18 @@ void Player::Update(char* keys) {
 		if (worldPos_.y >= BottomMost) {
 			camelaMatrix_->SetPosY(BottomMost - TopMost);
 		}
-
 	}
-
-	//プレイヤーのモーション
-
 	
+	//プレイヤーのモーション
+	MoveMotion(keys);
+	WaitMotion(keys);
+	JumpMotion();
+	LandingMotion();
+
 	//カメラ行列、プレイヤーの行列の作成
 		camelaMatrix_->MakeCamelaMatrix();
 	matrix_ = MakeAffineMatrix(scale_, 0, worldPos_);
 	wvpVpMatrix_ = wvpVpMatrix(matrix_, camelaMatrix_->GetViewMatrix(), camelaMatrix_->GetOrthoMatrix(), camelaMatrix_->GetViewportMatrix());
-
 
 }
 
@@ -164,6 +178,13 @@ void Player::Move(char* keys) {
 			velocity_.y = -15;
 			isFlight_ = true;
 			jumpSE_.isStart = true;
+
+			//ジャンプモーションのフラグ立て
+			jump_.isEasing = true;
+			wait_.isEasing = false;
+			move_.isEasing = false;
+			jump_.easingPlus = 1;
+			localVertex_ = localVertexSave_;
 		}
 	}
 
@@ -232,10 +253,10 @@ void Player::ColligionMapChip() {
 			if (mapchip_->map[int(mapNum_.LeftBottom.y)][int(mapNum_.LeftBottom.x)] == BLOCK || mapchip_->map[int(mapNum_.RightBottom.y)][int(mapNum_.RightBottom.x)] == BLOCK) {
 
 				isFlight_ = false;
+				
 			}
 			else {
 				isFlight_ = true;
-
 			}
 
 			//上にぶつかったら加速度と速度を0にする
@@ -270,8 +291,9 @@ void Player::ColligionMapChip() {
 
 			else {
 				isFlight_ = true;
-
+				landing_.easingRock = false;
 			}
+
 			//上にぶつかったら加速度と速度を0にする
 			if (mapchip_->map[int(mapNum_.LeftTop.y)][int(mapNum_.LeftTop.x)] == BLOCK || mapchip_->map[int(mapNum_.RightTop.y)][int(mapNum_.RightTop.x)] == BLOCK) {
 				velocity_.y = 0;
@@ -281,7 +303,167 @@ void Player::ColligionMapChip() {
 	}
 	else {
 		isFlight_ = true;
+		landing_.easingRock = false;
 	}
 
+
+}
+
+//プレイヤーのモーション関数
+void Player::MoveMotion(char* keys) {
+
+	//イージングフラグを立てる
+	if (move_.isEasing == false && jump_.isEasing == false) {
+
+		if (keys[DIK_A] || keys[DIK_D]) {
+
+			move_.isEasing = true;
+			wait_.isEasing = false;
+			jump_.isEasing = false;
+			move_.easingPlus = 1;
+			localVertex_ = localVertexSave_;
+		}
+	}
+
+	//イージングをする
+	if (move_.isEasing == true) {
+
+		move_.easingTime += move_.easingPlus;
+
+		if (move_.easingTime >= 5 || move_.easingTime <= 0) {
+
+			move_.easingPlus = -move_.easingPlus;
+		}
+
+		localVertex_.LeftTop.y = easeInSine(move_.easingTime/5, localVertexSave_.LeftTop.y, localVertexSave_.LeftTop.y - 10);
+		localVertex_.RightTop.y = easeInSine(move_.easingTime/5, localVertexSave_.RightTop.y, localVertexSave_.RightTop.y - 10);
+	}
+
+	//イージングをしてないとき
+	if (move_.isEasing == false) {
+		move_.easingPlus = 0;
+		move_.easingTime = 0;
+	}
+}
+
+void Player::WaitMotion(char*keys) {
+
+	//イージングフラグを立てる
+	if (wait_.isEasing == false) {
+
+		if (keys[DIK_A] == 0 && keys[DIK_D] == 0 && isFlight_ == false && jump_.isEasing == false) {
+			wait_.easingCoolTime = 10;
+			wait_.isEasing = true;
+			move_.isEasing = false;
+			jump_.isEasing = false;
+			wait_.easingPlus = 1;
+			localVertex_ = localVertexSave_;
+		}
+	}
+	//イージングをする
+	if (wait_.isEasing == true) {
+
+		wait_.easingCoolTime--;
+		if (wait_.easingCoolTime <= 0) {
+			wait_.easingCoolTime = 0;
+		}
+
+		if (wait_.easingCoolTime == 0) {
+
+			wait_.easingTime += wait_.easingPlus;
+
+			if (wait_.easingTime >= 25 || wait_.easingTime <= 0) {
+
+				wait_.easingPlus = -wait_.easingPlus;
+			}
+
+			localVertex_.LeftTop.y = easeInSine(wait_.easingTime / 25, localVertexSave_.LeftTop.y, localVertexSave_.LeftTop.y - 10);
+			localVertex_.RightTop.y = easeInSine(wait_.easingTime / 25, localVertexSave_.RightTop.y, localVertexSave_.LeftTop.y - 10);
+		}
+	}
+
+	//イージングをしてないとき
+	if (wait_.isEasing == false) {
+		wait_.easingPlus = 0;
+		wait_.easingTime = 0;
+	}
+}
+
+void Player::JumpMotion() {
+
+	//フラグ立ては移動処理のジャンプのところで立てる
+
+	//イージングをする
+	if (jump_.isEasing == true) {
+
+		landing_.isEasing = false;
+		wait_.isEasing = false;
+		move_.isEasing = false;
+		jump_.easingTime += jump_.easingPlus;
+
+		//イージングを1往復させる
+		if (jump_.easingTime > 10 || jump_.easingTime < 0) {
+
+			jump_.easingPlus = -jump_.easingPlus;
+			jump_.easingCount++;
+
+			if (jump_.easingCount >= 2) {
+				jump_.isEasing = false;
+			}
+		}
+
+		localVertex_.LeftBottom.y = easeInQuart(jump_.easingTime / 10, localVertexSave_.LeftBottom.y, localVertexSave_.LeftBottom.y - 15);
+		localVertex_.RightBottom.y = easeInQuart(jump_.easingTime / 10, localVertexSave_.RightBottom.y, localVertexSave_.RightBottom.y -15);
+	}
+
+	//イージングをしてないとき
+	if (jump_.isEasing == false) {
+		jump_.easingPlus = 0;
+		jump_.easingTime = 0;
+		jump_.easingCount = 0;
+	}
+
+}
+
+void Player::LandingMotion() {
+
+	//フラグ立てはマップチップの当たり判定のところで行う
+	
+	if (isFlight_ == false) {
+		//着地のモーションフラグを立てる
+		if (landing_.isEasing == false && landing_.easingRock == false) {
+			landing_.isEasing = true;
+			landing_.easingPlus = 1;
+		}
+	}
+
+	//イージングをする
+	if (landing_.isEasing == true) {
+
+		jump_.isEasing = false;
+		wait_.isEasing = false;
+		move_.isEasing = false;
+
+		landing_.easingTime +=landing_.easingPlus;
+
+		//イージングやめる
+		if (landing_.easingTime >= 6) {			   
+			landing_.isEasing = false;
+			landing_.easingRock = true;
+		}
+
+		localVertex_.LeftTop.y = easeOutCubic(landing_.easingTime/6, localVertexSave_.LeftTop.y + 35, localVertexSave_.LeftTop.y);
+		localVertex_.RightTop.y = easeOutCubic(landing_.easingTime / 6, localVertexSave_.RightTop.y + 35, localVertexSave_.RightTop.y);
+		localVertex_.LeftTop.x = easeOutCubic(landing_.easingTime / 6, localVertexSave_.LeftTop.x - 20, localVertexSave_.LeftTop.x);
+		localVertex_.RightTop.x = easeOutCubic(landing_.easingTime / 6, localVertexSave_.RightTop.x + 20, localVertexSave_.RightTop.x);
+		localVertex_.LeftBottom.x = easeOutCubic(landing_.easingTime / 6, localVertexSave_.LeftBottom.x - 20, localVertexSave_.LeftBottom.x);
+		localVertex_.RightBottom.x = easeOutCubic(landing_.easingTime / 6, localVertexSave_.RightBottom.x + 20, localVertexSave_.RightBottom.x);
+	}
+
+	//イージングをしてないとき
+	if (landing_.isEasing == false) {
+		landing_.easingPlus = 0;
+		landing_.easingTime = 0;
+	}
 
 }

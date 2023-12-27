@@ -20,6 +20,7 @@ public:
 	//Vertex
 	Vertex vertexPos_;
 	Vertex localVertex_;
+	Vertex localVertexSave_;
 	Matrix3x3 matrix_;
 	float theta_;
 
