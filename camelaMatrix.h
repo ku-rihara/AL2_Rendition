@@ -5,8 +5,11 @@
 class CamelaMatrix {
 public:
 
+	//Pos,ZoomLevel
 	Vector2 pos_;
 	Vector2 zoomLevel_;
+
+	//Matrix
 	Matrix3x3 worldMatrix_;
 	Matrix3x3 viewMatrix_;
 	Matrix3x3 orthoMatrix_;

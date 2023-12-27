@@ -17,8 +17,8 @@ const int kWindowSizeY = 720;
 //const int mapDelimitX = 35;
 //const int mapDelimitY = 35;
 
-const int mapxMax = 35*4;
-const int mapyMax = 35;
+const int mapxMax = 100;
+const int mapyMax = 100;
 
 //ブロックのタイプ
 enum BlockType {

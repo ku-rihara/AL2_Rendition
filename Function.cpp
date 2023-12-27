@@ -85,6 +85,18 @@ float MAX(float a, float b) {
 		return b;
 	}
 }
+
+int MAX(int a, int b) {
+
+	if (a > b) {
+		return	a;
+	}
+
+	else {
+		return b;
+	}
+}
+
 void newDrawQuad(Vertex VerTex, float startx, float starty, float DrawWidth, float DrawHeigth, int Handle, int Color) {
 
 	Novice::DrawQuad(int(VerTex.LeftTop.x), int(VerTex.LeftTop.y), int(VerTex.RightTop.x), int(VerTex.RightTop.y), int(VerTex.LeftBottom.x), int(VerTex.LeftBottom.y), int(VerTex.RightBottom.x), int(VerTex.RightBottom.y), int(startx), int(starty), int(DrawWidth), int(DrawHeigth), Handle, Color);

@@ -16,6 +16,8 @@ Vector2 normalize(Vector2 pos);
 
 float MAX(float a, float b);
 
+int MAX(int a, int b);
+
 void newDrawQuad(Vertex VerTex, float startx, float starty, float DrawWidth, float DrawHeigth, int Handle, int Color);
 
 float RightSide(float PosX, float SizeX);

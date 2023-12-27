@@ -1,6 +1,9 @@
 ﻿#include<Novice.h>
+
+//function
 #include"Function.h"
 #include"Matrix3x3.h"
+#include"Easing.h"
 
 //class
 #include"player.h"
@@ -17,11 +20,12 @@ Player::Player() {
 void Player::Init() {
 
 	//座標
-	worldPos_ = { 72,160 };
+	worldPos_ = { 48*53,48*53 };
 	oldWorldPos_ = {};
 	fitMapsizePos_ = {};
 	screenVertex_ = {};
 	scrollPos_ = {};
+	maxPos_ = {};
 
 	//マップチップ
 	centerMapNum_ = {};
@@ -52,7 +56,7 @@ void Player::Init() {
 	theta_ = 0.0f;
 	direction_ = LEFT;
 
-	isFlight_ = false;
+	isFlight_ = true;
 	isDeath_ = false;
 
 	//効果音
@@ -65,13 +69,15 @@ void Player::Update(char* keys) {
 
 	oldWorldPos_.x = worldPos_.x;
 	oldWorldPos_.y = worldPos_.y;
+
 	Move(keys);
 	ColligionMapChip();
 
-	const float LeftMost = 200.0f;
-	const float RightMost = (mapchip_->GetMapchipSize() / 2) * mapxMax + LeftMost;
-	const float BottomMost = 0.0f;
-	const float TopMost = (mapchip_->GetMapchipSize() / 2) * mapyMax + BottomMost;
+	//スクロール範囲の制限
+	const float LeftMost = 480.0f * camelaMatrix_->GetZoomLevel().x;
+	const float RightMost = (mapchip_->GetMapchipSize()) * mapxMax - (LeftMost * 2);
+	const float TopMost = 432.0f * camelaMatrix_->GetZoomLevel().y;
+	const float BottomMost = (mapchip_->GetMapchipSize()) *mapyMax-(TopMost*2);
 
 	//カメラの動き
 	//X
@@ -86,33 +92,40 @@ void Player::Update(char* keys) {
 		}
 
 		if (worldPos_.x >= RightMost) {
-			camelaMatrix_->SetPosX(RightMost);
+			camelaMatrix_->SetPosX(RightMost- LeftMost);
 		}
 	}
 	//Y
-	if (worldPos_.y >= BottomMost && worldPos_.y <= TopMost) {
+	if (worldPos_.y >= TopMost && worldPos_.y <= BottomMost) {
 		
-		camelaMatrix_->SetPosY(worldPos_.y);
+		camelaMatrix_->SetPosY(worldPos_.y-TopMost);
 	}
 	//スクロール範囲外はスクロールしない
 	else {
-		if (worldPos_.y <= BottomMost) {
-			camelaMatrix_->SetPosY(BottomMost);
+		if (worldPos_.y <= TopMost) {
+			camelaMatrix_->SetPosY(0);
 		}
 
-		if (worldPos_.y >= TopMost) {
-			camelaMatrix_->SetPosY(TopMost);
+		if (worldPos_.y >= BottomMost) {
+			camelaMatrix_->SetPosY(BottomMost - TopMost);
 		}
 
 	}
+
+	//プレイヤーのモーション
+
+	
 	//カメラ行列、プレイヤーの行列の作成
 		camelaMatrix_->MakeCamelaMatrix();
 	matrix_ = MakeAffineMatrix(scale_, 0, worldPos_);
+	wvpVpMatrix_ = wvpVpMatrix(matrix_, camelaMatrix_->GetViewMatrix(), camelaMatrix_->GetOrthoMatrix(), camelaMatrix_->GetViewportMatrix());
+
+
 }
 
 void Player::Draw() {
 
-	wvpVpMatrix_ = wvpVpMatrix(matrix_, camelaMatrix_->GetViewMatrix(), camelaMatrix_->GetOrthoMatrix(), camelaMatrix_->GetViewportMatrix());
+	//スクリーン座標に変換
 	screenVertex_ = Transform(localVertex_, wvpVpMatrix_);
 
 	if (direction_ == LEFT) {
@@ -148,17 +161,17 @@ void Player::Move(char* keys) {
 		velocity_.y = 0;
 
 		if (keys[DIK_W]) {
-			velocity_.y = 15;
+			velocity_.y = -15;
 			isFlight_ = true;
 			jumpSE_.isStart = true;
 		}
 	}
 
 	if (isFlight_ == true) {
-		acceleration_.y = -0.8f;
+		acceleration_.y = 1.0f;
 	}
 
-	if (velocity_.y >= -16.0f) {
+	if (velocity_.y >= 16.0f) {
 		acceleration_.y = 0;
 	}
 
@@ -171,6 +184,15 @@ void Player::Move(char* keys) {
 }
 
 void Player::ColligionMapChip() {
+
+	/*maxPos_.x = MAX(worldPos_.x, oldWorldPos_.x);
+	maxPos_.y = MAX(worldPos_.y, oldWorldPos_.y);
+
+	fitMapsizePos_.intx = int(maxPos_.x / (mapchip_->GetMapchipSize() / 2));
+	fitMapsizePos_.intx = int(fitMapsizePos_.intx * (mapchip_->GetMapchipSize() / 2));
+
+	fitMapsizePos_.inty = int(maxPos_.y / (mapchip_->GetMapchipSize() / 2));
+	fitMapsizePos_.inty = int(fitMapsizePos_.inty * (mapchip_->GetMapchipSize() / 2));*/
 
 	//マップ間の隙間を埋める
 	fitMapsizePos_ = fitMapSize(worldPos_, oldWorldPos_, mapchip_->GetMapchipSize());

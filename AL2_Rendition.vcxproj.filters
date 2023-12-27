@@ -65,6 +65,9 @@
     <ClCompile Include="camalaMatrix.cpp">
       <Filter>Object</Filter>
     </ClCompile>
+    <ClCompile Include="Easing.cpp">
+      <Filter>Function</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="C:\KamataEngine\DirectXGame\audio\Audio.h">
@@ -138,9 +141,6 @@
     <ClInclude Include="C:\KamataEngine\DirectXGame\base\StringUtility.h">
       <Filter>KamataEngine\Include</Filter>
     </ClInclude>
-    <ClInclude Include="..\TeamGame3\TD1_3\struct.h">
-      <Filter>struct</Filter>
-    </ClInclude>
     <ClInclude Include="player.h">
       <Filter>Object</Filter>
     </ClInclude>
@@ -158,6 +158,12 @@
     </ClInclude>
     <ClInclude Include="camelaMatrix.h">
       <Filter>Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Easing.h">
+      <Filter>Function</Filter>
+    </ClInclude>
+    <ClInclude Include="struct.h">
+      <Filter>struct</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

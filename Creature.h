@@ -8,6 +8,7 @@ public:
 	//Pos
 	Vector2 worldPos_;
 	Vector2 oldWorldPos_;
+	Vector2 maxPos_;
 	Vertex screenPos_;
 	Vector2i fitMapsizePos_;
 

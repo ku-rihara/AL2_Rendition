@@ -1,9 +1,9 @@
-﻿#pragma once
+#pragma once
 
 struct Vector2 {
 	float x;
 	float y;
-	
+
 };
 
 struct Vector2i {
@@ -23,13 +23,22 @@ struct Matrix3x3 {
 	float m[3][3];
 };
 
-struct SE {
-	int handle;
-	int voiceHandle;
-	bool isStart;
+struct Easing {
+	bool isEasing;
+	float easingTime;
+	float easingPlus;
+	bool isEasingEnd;
+	bool easingRock;
+	bool isBack;
+	int easingCount;
 };
 
-struct GH {
-	int Handle;
-};
+	struct SE {
+		int handle;
+		int voiceHandle;
+		bool isStart;
+	};
 
+	struct GH {
+		int Handle;
+	};

@@ -14,15 +14,18 @@ private:
 	CamelaMatrix* camelaMatrix_;
 
 
-	//Pos
+	//座標
 	Vertex screenVertex_;
 	Vector2 scrollPos_;
 	
-
 	//Matrix3x3
 	Matrix3x3 wvpVpMatrix_;
 
+	//イージング
+	
+
 	bool isFlight_;
+
 
 	//効果音・画像
 	SE jumpSE_;
@@ -34,7 +37,6 @@ private:
 		LEFT,
 		RIGHT,
 	};
-
 	DIRECTION direction_;
 
 public:
@@ -45,8 +47,15 @@ public:
 	void Update(char* keys);
 	void Draw();
 
+	//プレイヤーの動き、当たり判定
 	void Move(char* keys);
 	void ColligionMapChip();
+
+	//プレイヤーのモーション
+	void MoveMotion();
+	void JumpMotion();
+	void StopMotion();
+	void LandingMotion();
 
 	void SetCamelaMatrix(CamelaMatrix* camelamatrix) { camelaMatrix_ = camelamatrix; }
 

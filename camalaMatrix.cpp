@@ -17,6 +17,6 @@ void CamelaMatrix::MakeCamelaMatrix() {
 
 	worldMatrix_ = MakeAffineMatrix(zoomLevel_, 0, pos_);
 	viewMatrix_ = InverseMatrix(worldMatrix_);
-	orthoMatrix_ = MakeOrthographicMatrix(0, 0, 1280, 360);
+	orthoMatrix_ = MakeOrthographicMatrix(0, 0, 1280, 720);
 	viewportMatrix_ = MakeViewwportmatrix(0, 0, 1280, 720);
 }

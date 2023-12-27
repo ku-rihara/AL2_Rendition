@@ -1,9 +1,11 @@
 ﻿#include <Novice.h>
 #include <stdio.h>
 
+//function
 #include"Matrix3x3.h"
 #include"Function.h"
 
+//class
 #include"mapchip.h"
 
 
@@ -17,7 +19,7 @@ Mapchip::Mapchip() {
 }
 
 void Mapchip::Init() {
-	size_ = 48;
+	size_ = 48.0f;
 	scale_ = { 1,1 };
 	scrollPos_ = { 0,0 };
 
@@ -39,6 +41,7 @@ void Mapchip::Init() {
 
 void Mapchip::fileLoad() {
 
+	//ファイル読み込み
 	FILE* fp = NULL;
 
 	if (fopen_s(&fp, "./Resources/map1.csv", "rt") != 0) {
@@ -49,7 +52,6 @@ void Mapchip::fileLoad() {
 	while (numRects < mapxMax * mapyMax && fscanf_s(fp, "%d,", &map[numRects / mapxMax][numRects % mapxMax]) != EOF) {
 		++numRects;
 	}
-
 	fclose(fp);
 
 	//char filePath[256];
@@ -85,7 +87,7 @@ void Mapchip::fileLoad() {
 
 void Mapchip::Update() {
 
-	//マップのスクロール
+	//マップチップの座標取得
 	for (int y = 0; y < mapyMax; y++) {
 		for (int x = 0; x < mapxMax; x++) {
 			pos_[y][x].x = float(x * size_) + (size_ / 2);
@@ -98,7 +100,6 @@ void Mapchip::Update() {
 	}
 }
 
-
 void Mapchip::Draw() {
 
 	//スクロール座標の取得
@@ -109,13 +110,12 @@ void Mapchip::Draw() {
 			//スクリーンに変換＆描画
 			ScreenVertex_[y][x] = Transform(localVertex_, wvMatrix_[y][x]);
 
-			if (pos_[y][x].x - scrollPos_.x >= -size_ && pos_[y][x].x - scrollPos_.x <= kWindowSizeX + size_) {
+			//画面内のみ描画する
+			if (pos_[y][x].x - scrollPos_.x >= -size_ * camelaMatrix_->GetZoomLevel().x && pos_[y][x].x - scrollPos_.x <=( kWindowSizeX + size_) * camelaMatrix_->GetZoomLevel().x && pos_[y][x].y - scrollPos_.y >= -size_ * camelaMatrix_->GetZoomLevel().y && pos_[y][x].y - scrollPos_.y <= (kWindowSizeY + size_)*camelaMatrix_->GetZoomLevel().y) {
 				if (map[y][x] == BLOCK) {
 					newDrawQuad(ScreenVertex_[y][x], 0, 0, size_, size_, mapTexture.Handle, WHITE);
 				}
 			}
 		}
 	}
-
-	Novice::ScreenPrintf(600, 200,"%f", pos_[1][17].x);
 }
