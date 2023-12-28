@@ -12,7 +12,7 @@
 Mapchip::Mapchip() {
 	Init();
 	fileLoad();
-	camelaMatrix_ = new CamelaMatrix;
+	camelaMatrix_ = new Camela;
 
 
 	mapTexture.Handle = Novice::LoadTexture("white1x1.png");//マップ画像

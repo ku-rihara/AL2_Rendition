@@ -27,3 +27,5 @@ float LeftSide(float PosX, float SizeX);
 float UpSide(float PosY, float SizeY);
 
 float LowerSide(float PosY, float SizeY);
+
+bool isBoxColligion(Vector2 obj1_LeftTop, Vector2  obj1_RightBottom, Vector2 obj2_LeftTop, Vector2 obj2_RightBottom);

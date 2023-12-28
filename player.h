@@ -11,7 +11,7 @@ class Player:public Creature {
 private:
 
 	Mapchip* mapchip_;
-	CamelaMatrix* camelaMatrix_;
+	Camela* camela_;
 
 	//座標
 	Vertex screenVertex_;
@@ -26,7 +26,11 @@ private:
 	Easing jump_;
 	Easing landing_;
 
+	Easing warp_;
+
+	//状態
 	bool isFlight_;
+	bool isStartBlockColligion_;
 
 
 	//効果音・画像
@@ -46,7 +50,7 @@ public:
 	Player();
 
 	void Init();
-	void Update(char* keys);
+	void Update(char* keys,char*preKeys);
 	void Draw();
 
 	//プレイヤーの動き、当たり判定
@@ -59,7 +63,10 @@ public:
 	void JumpMotion();
 	void LandingMotion();
 
-	void SetCamelaMatrix(CamelaMatrix* camelamatrix) { camelaMatrix_ = camelamatrix; }
+	//ゲーム開始
+	void GameStart(char* keys, char* preKeys);
+
+	void SetCamelaMatrix(Camela* camelamatrix) { camela_ = camelamatrix; }
 
 
 };

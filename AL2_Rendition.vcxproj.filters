@@ -26,6 +26,12 @@
     <Filter Include="Map">
       <UniqueIdentifier>{a64a808a-8405-499f-bb72-626f6945ca0c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Camela">
+      <UniqueIdentifier>{44e689ed-0a39-4aee-bfa0-67895e54de47}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Colligion">
+      <UniqueIdentifier>{86267d67-e7ba-43e2-8511-3d734f6ab825}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="C:\KamataEngine\DirectXGame\base\DirectXCommon.cpp">
@@ -62,11 +68,14 @@
     <ClCompile Include="Matrix3x3.cpp">
       <Filter>Function</Filter>
     </ClCompile>
-    <ClCompile Include="camalaMatrix.cpp">
-      <Filter>Object</Filter>
-    </ClCompile>
     <ClCompile Include="Easing.cpp">
       <Filter>Function</Filter>
+    </ClCompile>
+    <ClCompile Include="camalaMatrix.cpp">
+      <Filter>Camela</Filter>
+    </ClCompile>
+    <ClCompile Include="Colligion.cpp">
+      <Filter>Colligion</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -156,14 +165,18 @@
     <ClInclude Include="Matrix3x3.h">
       <Filter>Function</Filter>
     </ClInclude>
-    <ClInclude Include="camelaMatrix.h">
-      <Filter>Object</Filter>
-    </ClInclude>
     <ClInclude Include="Easing.h">
       <Filter>Function</Filter>
     </ClInclude>
     <ClInclude Include="struct.h">
       <Filter>struct</Filter>
     </ClInclude>
+    <ClInclude Include="camelaMatrix.h">
+      <Filter>Camela</Filter>
+    </ClInclude>
+    <ClInclude Include="Colligion.h">
+      <Filter>Colligion</Filter>
+    </ClInclude>
+    <ClInclude Include="Object.h" />
   </ItemGroup>
 </Project>

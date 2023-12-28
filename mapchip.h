@@ -18,19 +18,21 @@ const int kWindowSizeY = 720;
 //const int mapDelimitY = 35;
 
 const int mapxMax = 100;
-const int mapyMax = 100;
+const int mapyMax = 30;
 
 //ブロックのタイプ
 enum BlockType {
 	NONE,//0
 	BLOCK,//1
+	START,//2
+
 };
 
 //マップチップクラス
 class Mapchip {
 private:
 
-	CamelaMatrix* camelaMatrix_;
+	Camela* camelaMatrix_;
 
 	//pos
 	Vector2 scrollPos_;
@@ -60,7 +62,7 @@ public:
 	void Draw();
 
 	//setter
-	void SetCamelaMatrix(CamelaMatrix* camelamatrix) { camelaMatrix_ = camelamatrix; }
+	void SetCamelaMatrix(Camela* camelamatrix) { camelaMatrix_ = camelamatrix; }
 	void SetScrollPosX(float scrollPosX) { this->scrollPos_.x = scrollPosX; }
 
 	//getter

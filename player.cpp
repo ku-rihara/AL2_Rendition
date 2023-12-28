@@ -11,7 +11,7 @@
 Player::Player() {
 	Init();
 	mapchip_ = new Mapchip;
-	camelaMatrix_ = new CamelaMatrix;
+	camela_ = new Camela;
 
 	leftTexture_.Handle = Novice::LoadTexture("white1x1.png");
 	rightTexture_.Handle = Novice::LoadTexture("white1x1.png");
@@ -20,7 +20,7 @@ Player::Player() {
 void Player::Init() {
 
 	//座標
-	worldPos_ = { 48*53,48*53 };
+	worldPos_ = { 48*2,48*5 };
 	oldWorldPos_ = {};
 	fitMapsizePos_ = {};
 	screenVertex_ = {};
@@ -69,16 +69,17 @@ void Player::Init() {
 	theta_ = 0.0f;
 	direction_ = LEFT;
 
+	//状態
 	isFlight_ = true;
 	isDeath_ = false;
+	isStartBlockColligion_ = false;
 
 	//効果音
 	jumpSE_ = {};
 	jumpSE_.voiceHandle = -1;
-
 }
 
-void Player::Update(char* keys) {
+void Player::Update(char* keys, char* preKeys) {
 
 	oldWorldPos_.x = worldPos_.x;
 	oldWorldPos_.y = worldPos_.y;
@@ -87,42 +88,46 @@ void Player::Update(char* keys) {
 	ColligionMapChip();
 
 	//スクロール範囲の制限
-	const float LeftMost = 480.0f * camelaMatrix_->GetZoomLevel().x;
+	const float LeftMost = 576.0f * camela_->GetZoomLevel().x;
 	const float RightMost = (mapchip_->GetMapchipSize()) * mapxMax - (LeftMost * 2);
-	const float TopMost = 432.0f * camelaMatrix_->GetZoomLevel().y;
-	const float BottomMost = (mapchip_->GetMapchipSize()) *mapyMax-(TopMost*2);
+	const float TopMost = 432.0f * camela_->GetZoomLevel().y;
+	const float BottomMost = (mapchip_->GetMapchipSize()) *mapyMax-(TopMost/1.5f);
 
 	//カメラの動き
 	//X
 	if (worldPos_.x >= LeftMost && worldPos_.x <= RightMost) {
 		
-		camelaMatrix_->SetPosX(worldPos_.x- LeftMost);
+		camela_->SetPosX(worldPos_.x- LeftMost);
 	}
 	//スクロール範囲外はスクロールしない
 	else {
 		if (worldPos_.x <= LeftMost) {
-			camelaMatrix_->SetPosX(0);
+			camela_->SetPosX(0);
 		}
 
 		if (worldPos_.x >= RightMost) {
-			camelaMatrix_->SetPosX(RightMost- LeftMost);
+			camela_->SetPosX(RightMost- LeftMost);
 		}
 	}
+
 	//Y
 	if (worldPos_.y >= TopMost && worldPos_.y <= BottomMost) {
 		
-		camelaMatrix_->SetPosY(worldPos_.y-TopMost);
+		camela_->SetPosY(worldPos_.y-TopMost);
 	}
 	//スクロール範囲外はスクロールしない
 	else {
 		if (worldPos_.y <= TopMost) {
-			camelaMatrix_->SetPosY(0);
+			camela_->SetPosY(0);
 		}
 
 		if (worldPos_.y >= BottomMost) {
-			camelaMatrix_->SetPosY(BottomMost - TopMost);
+			camela_->SetPosY(BottomMost - TopMost);
 		}
 	}
+
+	//ゲームスタート
+	GameStart(keys,preKeys);
 	
 	//プレイヤーのモーション
 	MoveMotion(keys);
@@ -131,10 +136,9 @@ void Player::Update(char* keys) {
 	LandingMotion();
 
 	//カメラ行列、プレイヤーの行列の作成
-		camelaMatrix_->MakeCamelaMatrix();
+	camela_->MakeCamelaMatrix();
 	matrix_ = MakeAffineMatrix(scale_, 0, worldPos_);
-	wvpVpMatrix_ = wvpVpMatrix(matrix_, camelaMatrix_->GetViewMatrix(), camelaMatrix_->GetOrthoMatrix(), camelaMatrix_->GetViewportMatrix());
-
+	wvpVpMatrix_ = wvpVpMatrix(matrix_, camela_->GetViewMatrix(), camela_->GetOrthoMatrix(), camela_->GetViewportMatrix());
 }
 
 void Player::Draw() {
@@ -155,17 +159,17 @@ void Player::Draw() {
 	Novice::ScreenPrintf(100, 120, "%f", worldPos_.y);
 
 	Novice::ScreenPrintf(100, 150, "%f", screenVertex_.LeftTop.x);
-	Novice::ScreenPrintf(100, 170, "%f", camelaMatrix_->GetPos().x);
+	Novice::ScreenPrintf(100, 170, "%f", camela_->GetPos().x);
 }
 
 void Player::Move(char* keys) {
-
+	
 	if (keys[DIK_D]) {
 		velocity_.x = 4;
 		direction_ = LEFT;
 	}
 
-	else if (keys[DIK_A]) {
+	else if (keys[DIK_A] && isStartBlockColligion_ == false) {
 		velocity_.x = -4;
 		direction_ = RIGHT;
 	}
@@ -178,13 +182,15 @@ void Player::Move(char* keys) {
 			velocity_.y = -15;
 			isFlight_ = true;
 			jumpSE_.isStart = true;
-
-			//ジャンプモーションのフラグ立て
-			jump_.isEasing = true;
-			wait_.isEasing = false;
-			move_.isEasing = false;
-			jump_.easingPlus = 1;
-			localVertex_ = localVertexSave_;
+			
+			if (jump_.isEasing == false) {
+				//ジャンプモーションのフラグ立て
+				jump_.isEasing = true;
+				wait_.isEasing = false;
+				move_.isEasing = false;
+				jump_.easingPlus = 1;
+				localVertex_ = localVertexSave_;
+			}
 		}
 	}
 
@@ -233,12 +239,12 @@ void Player::ColligionMapChip() {
 	oldMapNum_.RightBottom = RightBottomMapNum(oldWorldPos_, 1, size_.y, size_.x, mapchip_->GetMapchipSize());
 
 	//自機の４頂点のどれかが当たっている時
-	if (mapchip_->map[int(mapNum_.RightTop.y)][int(mapNum_.RightTop.x)] != NONE || mapchip_->map[int(mapNum_.RightBottom.y)][int(mapNum_.RightBottom.x)] != NONE ||
-		mapchip_->map[int(mapNum_.LeftTop.y)][int(mapNum_.LeftTop.x)] != NONE || mapchip_->map[int(mapNum_.LeftBottom.y)][int(mapNum_.LeftBottom.x)] != NONE) {
+	if (mapchip_->map[int(mapNum_.RightTop.y)][int(mapNum_.RightTop.x)] == BLOCK || mapchip_->map[int(mapNum_.RightBottom.y)][int(mapNum_.RightBottom.x)] == BLOCK ||
+		mapchip_->map[int(mapNum_.LeftTop.y)][int(mapNum_.LeftTop.x)] == BLOCK || mapchip_->map[int(mapNum_.LeftBottom.y)][int(mapNum_.LeftBottom.x)] == BLOCK) {
 
 		//Y方向
-		if (mapchip_->map[int(oldMapNum_.RightTop.y)][int(mapNum_.RightTop.x)] == NONE && mapchip_->map[int(oldMapNum_.RightBottom.y)][int(mapNum_.RightBottom.x)] == NONE &&
-			mapchip_->map[int(oldMapNum_.LeftTop.y)][int(mapNum_.LeftTop.x)] == NONE && mapchip_->map[int(oldMapNum_.LeftBottom.y)][int(mapNum_.LeftBottom.x)] == NONE) {
+		if (mapchip_->map[int(oldMapNum_.RightTop.y)][int(mapNum_.RightTop.x)] != BLOCK && mapchip_->map[int(oldMapNum_.RightBottom.y)][int(mapNum_.RightBottom.x)] != BLOCK &&
+			mapchip_->map[int(oldMapNum_.LeftTop.y)][int(mapNum_.LeftTop.x)] != BLOCK && mapchip_->map[int(oldMapNum_.LeftBottom.y)][int(mapNum_.LeftBottom.x)] != BLOCK) {
 
 			//縦の斜め移動時にマップとの隙間を埋める
 			worldPos_.y = float(fitMapsizePos_.inty);
@@ -267,8 +273,8 @@ void Player::ColligionMapChip() {
 		}
 
 		//X方向
-		else if (mapchip_->map[int(mapNum_.RightTop.y)][int(oldMapNum_.RightTop.x)] == NONE && mapchip_->map[int(mapNum_.RightBottom.y)][int(oldMapNum_.RightBottom.x)] == NONE &&
-			mapchip_->map[int(mapNum_.LeftTop.y)][int(oldMapNum_.LeftTop.x)] == NONE && mapchip_->map[int(mapNum_.LeftBottom.y)][int(oldMapNum_.LeftBottom.x)] == NONE) {
+		else if (mapchip_->map[int(mapNum_.RightTop.y)][int(oldMapNum_.RightTop.x)] != BLOCK && mapchip_->map[int(mapNum_.RightBottom.y)][int(oldMapNum_.RightBottom.x)] != BLOCK &&
+			mapchip_->map[int(mapNum_.LeftTop.y)][int(oldMapNum_.LeftTop.x)] != BLOCK && mapchip_->map[int(mapNum_.LeftBottom.y)][int(oldMapNum_.LeftBottom.x)] != BLOCK) {
 
 			//横の斜め移動時にマップとの隙間を埋める
 			worldPos_.x = float(fitMapsizePos_.intx);
@@ -306,6 +312,15 @@ void Player::ColligionMapChip() {
 		landing_.easingRock = false;
 	}
 
+	//ワープブロックに触れてる時
+	if (mapchip_->map[int(mapNum_.RightTop.y)][int(mapNum_.RightTop.x)] == START || mapchip_->map[int(mapNum_.RightBottom.y)][int(mapNum_.RightBottom.x)] == START ||
+		mapchip_->map[int(mapNum_.LeftTop.y)][int(mapNum_.LeftTop.x)] == START || mapchip_->map[int(mapNum_.LeftBottom.y)][int(mapNum_.LeftBottom.x)] == START) {
+
+		isStartBlockColligion_ = true;
+	}
+	else {
+		isStartBlockColligion_ = false;
+	}
 
 }
 
@@ -386,6 +401,7 @@ void Player::WaitMotion(char*keys) {
 	if (wait_.isEasing == false) {
 		wait_.easingPlus = 0;
 		wait_.easingTime = 0;
+
 	}
 }
 
@@ -464,6 +480,40 @@ void Player::LandingMotion() {
 	if (landing_.isEasing == false) {
 		landing_.easingPlus = 0;
 		landing_.easingTime = 0;
+	}
+
+}
+
+//ゲームスタート
+void Player::GameStart(char* keys, char* preKeys) {
+
+	//ズームアウトするイージングをたてる　
+	if (isStartBlockColligion_ == true&&camela_->GetIsZoomOut()==false) {
+
+		camela_->SetIsZoomOut(true);
+		camela_->SetZoomOutPuls(1);
+	}
+
+	camela_->ZoomOut();
+
+	if (keys[DIK_SPACE] && preKeys[DIK_SPACE]==0&& warp_.isEasing ==false ) {
+	
+		warp_.isEasing = true;
+		warp_.easingPlus = 1;
+	};
+
+	if (warp_.isEasing == true) {
+
+		warp_.easingTime += warp_.easingPlus;
+		
+		if (warp_.easingTime >= 20) {
+			warp_.easingTime = 20;
+			worldPos_.x = 48 * 15;
+		}
+
+		scale_.x = easeInBack(warp_.easingTime, 1, 0);
+		scale_.y = easeInBack(warp_.easingTime, 1, 0);
+
 	}
 
 }

@@ -34,6 +34,25 @@ struct Easing {
 	int easingCount;
 };
 
+
+struct Particle {
+	Vector2 Pos;
+	Vector2 direction;
+	Vector2 velocity;
+	float theta;
+	int currentTime;
+	bool isStart;
+};
+
+
+struct Emitter {
+	Vector2 spownPos;
+	Vector2 velocity;
+	float direction;
+	float theta;
+	int lifeTime;
+};
+
 	struct SE {
 		int handle;
 		int voiceHandle;

@@ -45,8 +45,6 @@ Vector2 RightBottomMapNum(Vector2 worldpos, float zoomScale, float heigth, float
 	return mapnum;
 }
 
-
-
 Vector2i fitMapSize(Vector2 worldPos, Vector2 oldWorldPos, float mapSize) {
 	Vector2i fitMapSizePos;
 	Vector2 maxPos;
@@ -116,4 +114,14 @@ float UpSide(float PosY, float SizeY) {
 
 float LowerSide(float PosY, float SizeY) {
 	return PosY + (SizeY / 2 - 1);
+}
+
+bool isBoxColligion(Vector2 obj1_LeftTop, Vector2  obj1_RightBottom, Vector2 obj2_LeftTop, Vector2 obj2_RightBottom) {
+
+	if (obj1_LeftTop.x<obj2_RightBottom.x && obj1_RightBottom.x>obj2_LeftTop.x && obj1_LeftTop.y<obj2_RightBottom.y && obj1_RightBottom.y>obj2_LeftTop.y) {
+		return true;
+	}
+	else {
+		return false;
+	}
 }

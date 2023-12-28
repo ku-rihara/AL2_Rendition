@@ -17,7 +17,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	Player* player = new Player();
 	Mapchip* mapchip = new Mapchip();
-	CamelaMatrix* camelaMatrix = new CamelaMatrix;
+	Camela* camelaMatrix = new Camela;
 
 	player->SetCamelaMatrix(camelaMatrix);
 	mapchip->SetCamelaMatrix(camelaMatrix);
@@ -38,7 +38,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 		/// ↓更新処理ここから
 		///
-		player->Update(keys);
+		player->Update(keys,preKeys);
 		mapchip->Update();
 	
 
@@ -51,6 +51,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 		mapchip->Draw();
 		player->Draw();
+
+		for (int i = 0; i < 29; i++) {
+
+			Novice::DrawLine(i * 48, 0, i * 48, 720, RED);
+			Novice::DrawLine(0, i * 48,1280, i * 48, GREEN);
+		}
 		///
 		/// ↑描画処理ここまで
 		///
