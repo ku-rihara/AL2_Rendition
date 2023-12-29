@@ -73,6 +73,30 @@ Vector2 normalize(Vector2 pos) {
 	return result;
 }
 
+Vector2 normalize(Vector2 objPos1, Vector2 objPos2) {
+
+	Vector2 result;
+	Vector2 objDistance;
+
+	objDistance.x = objPos1.x - objPos2.x;
+	objDistance.y = objPos1.y - objPos2.y;
+
+	float c = sqrtf(objDistance.x * objDistance.x + objDistance.y * objDistance.y);
+
+	result.x = objDistance.x / c;
+	result.y = objDistance.y / c;
+
+	return result;
+}
+
+float Distance(Vector2 posA, Vector2 posB) {
+
+	float x = posA.x - posB.x;
+	float y = posA.y - posB.y;
+
+	return sqrtf(x * x + y *y);
+}
+
 float MAX(float a, float b) {
 
 	if (a > b) {

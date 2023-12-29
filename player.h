@@ -5,6 +5,8 @@
 //class
 #include"mapchip.h"
 #include"camelaMatrix.h"
+#include"Weapon.h"
+
 
 class Player:public Creature {
 
@@ -12,6 +14,7 @@ private:
 
 	Mapchip* mapchip_;
 	Camela* camela_;
+	Weapon* weapon_;
 
 	//座標
 	Vertex screenVertex_;
@@ -31,21 +34,22 @@ private:
 	//状態
 	bool isFlight_;
 	bool isStartBlockColligion_;
+	bool isStart_;
 
 	//武器
+	float shakeTime_;
+	bool isShake_;
+	int randX_;
+	int randY_;
 	
-
-
+	
 	//効果音・画像
 	SE jumpSE_;
 	GH leftTexture_;
 	GH rightTexture_;
+	GH arrow_;
 
-	//向き
-	enum DIRECTION {
-		LEFT,
-		RIGHT,
-	};
+	
 	DIRECTION direction_;
 
 public:
@@ -70,4 +74,6 @@ public:
 	void GameStart(char* keys, char* preKeys);
 
 	void SetCamelaMatrix(Camela* camelamatrix) { camela_ = camelamatrix; }
+
+	void SetWeapon(Weapon* weapon) { weapon_ = weapon; }
 };

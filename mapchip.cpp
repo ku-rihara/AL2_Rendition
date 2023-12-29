@@ -15,7 +15,7 @@ Mapchip::Mapchip() {
 	camelaMatrix_ = new Camela;
 
 
-	mapTexture.Handle = Novice::LoadTexture("white1x1.png");//マップ画像
+	mapTexture.Handle = Novice::LoadTexture("./Resources/block.png");//マップ画像
 }
 
 void Mapchip::Init() {
@@ -44,7 +44,7 @@ void Mapchip::fileLoad() {
 	//ファイル読み込み
 	FILE* fp = NULL;
 
-	if (fopen_s(&fp, "./Resources/map1.csv", "rt") != 0) {
+	if (fopen_s(&fp, "./Resources/map.csv", "rt") != 0) {
 		return;
 	}
 	int numRects = 0;

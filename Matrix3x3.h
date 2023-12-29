@@ -8,6 +8,7 @@ Vertex Transform(Vertex VerTexWide, Matrix3x3 matrix);
 Vector2 Transform(Vector2 vector, Matrix3x3 matrix);
 
 Matrix3x3 MakeAffineMatrix(Vector2 scale, float rotate, Vector2 translate);
+Matrix3x3 MakeAffineMatrix(Vector2 scale, Vector2 rotate, Vector2 translate);
 
 Matrix3x3 InverseMatrix(Matrix3x3 matrix);
 

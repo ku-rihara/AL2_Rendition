@@ -81,7 +81,7 @@
       <Filter>Object</Filter>
     </ClCompile>
     <ClCompile Include="Enemy.cpp">
-      <Filter>KamataEngine</Filter>
+      <Filter>Object</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -187,6 +187,8 @@
     <ClInclude Include="Weapon.h">
       <Filter>Object</Filter>
     </ClInclude>
-    <ClInclude Include="Enemy.h" />
+    <ClInclude Include="Enemy.h">
+      <Filter>Object</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

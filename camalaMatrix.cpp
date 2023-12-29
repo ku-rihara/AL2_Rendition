@@ -8,16 +8,21 @@
 #include"camelaMatrix.h"
 
 Camela::Camela() {
-	pos_={};
-	zoomLevel_ = {1,1};
-	 worldMatrix_ = {};
-	 viewMatrix_ = {};
-	 orthoMatrix_ = {};
-	 viewportMatrix_ = {};
-
-	 zoomOut_ = {};
-	 zoomIn_ = {};
+	Init();
  }
+
+void Camela::Init() {
+	pos_ = {};
+	zoomLevel_ = { 1,1 };
+	worldMatrix_ = {};
+	viewMatrix_ = {};
+	orthoMatrix_ = {};
+	viewportMatrix_ = {};
+
+	zoomOut_ = {};
+	zoomIn_ = {};
+
+}
 
 void Camela::MakeCamelaMatrix() {
 
@@ -50,6 +55,7 @@ void Camela::ZoomIn() {
 
 		if (zoomIn_.easingTime >= 60) {
 			zoomIn_.easingTime = 60;
+
 		}
 
 		zoomLevel_.x = easeInQuart(zoomIn_.easingTime / 60, 2.0f,1.0f);

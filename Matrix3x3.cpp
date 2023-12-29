@@ -187,3 +187,52 @@ Matrix3x3 MakeAffineMatrix(Vector2 scale, float rotate, Vector2 translate) {
 
 	return result;
 }
+
+Matrix3x3 MakeAffineMatrix(Vector2 scale, Vector2 rotate, Vector2 translate) {
+
+	Matrix3x3 scaleMatirx;
+	Matrix3x3 rotateMatirx;
+	Matrix3x3 translateMatirx;
+	Matrix3x3 SR;
+	Matrix3x3 result;
+
+
+	scaleMatirx.m[0][0] = scale.x;
+	scaleMatirx.m[0][1] = 0;
+	scaleMatirx.m[0][2] = 0;
+	scaleMatirx.m[1][0] = 0;
+	scaleMatirx.m[1][1] = scale.y;
+	scaleMatirx.m[1][2] = 0;
+	scaleMatirx.m[2][0] = 0;
+	scaleMatirx.m[2][1] = 0;
+	scaleMatirx.m[2][2] = 1;
+
+
+	rotateMatirx.m[0][0] = rotate.x;
+	rotateMatirx.m[0][1] = rotate.y;
+	rotateMatirx.m[0][2] = 0;
+	rotateMatirx.m[1][0] = -rotate.y;
+	rotateMatirx.m[1][1] = rotate.x;
+	rotateMatirx.m[1][2] = 0;
+	rotateMatirx.m[2][0] = 0;
+	rotateMatirx.m[2][1] = 0;
+	rotateMatirx.m[2][2] = 1;
+
+
+	translateMatirx.m[0][0] = 1.0f;
+	translateMatirx.m[0][1] = 0.0f;
+	translateMatirx.m[0][2] = 0.0f;
+	translateMatirx.m[1][0] = 0.0f;
+	translateMatirx.m[1][1] = 1.0f;
+	translateMatirx.m[1][2] = 0.0f;
+	translateMatirx.m[2][0] = translate.x;
+	translateMatirx.m[2][1] = translate.y;
+	translateMatirx.m[2][2] = 1.0f;
+
+
+
+	SR = Multiply(scaleMatirx, rotateMatirx);
+	result = Multiply(SR, translateMatirx);
+
+	return result;
+}

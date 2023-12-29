@@ -62,3 +62,9 @@ struct Emitter {
 	struct GH {
 		int Handle;
 	};
+
+	
+	enum DIRECTION {
+		LEFT,
+		RIGHT,
+	};

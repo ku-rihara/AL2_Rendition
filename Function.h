@@ -14,6 +14,10 @@ Vector2i fitMapSize(Vector2 worldPos, Vector2 oldWorldPos, float mapSize);
 
 Vector2 normalize(Vector2 pos);
 
+Vector2 normalize(Vector2 objPos1, Vector2 objPos2);
+
+float Distance(Vector2 posA, Vector2 posB);
+
 float MAX(float a, float b);
 
 int MAX(int a, int b);

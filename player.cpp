@@ -1,4 +1,6 @@
 ﻿#include<Novice.h>
+#include <stdlib.h>
+#include <time.h>
 
 //function
 #include"Function.h"
@@ -12,9 +14,10 @@ Player::Player() {
 	Init();
 	mapchip_ = new Mapchip;
 	camela_ = new Camela;
+	weapon_ = new Weapon;
 
-	leftTexture_.Handle = Novice::LoadTexture("white1x1.png");
-	rightTexture_.Handle = Novice::LoadTexture("white1x1.png");
+	leftTexture_.Handle = Novice::LoadTexture("./Resources/playerRight.png");
+	rightTexture_.Handle = Novice::LoadTexture("./Resources/playerLeft.png");
 }
 
 void Player::Init() {
@@ -73,6 +76,12 @@ void Player::Init() {
 	isFlight_ = true;
 	isDeath_ = false;
 	isStartBlockColligion_ = false;
+	isStart_ = false;
+
+	 shakeTime_=0;
+	 isShake_ = 0;
+	 randX_ = 0;
+	 randY_ = 0;
 
 	//効果音
 	jumpSE_ = {};
@@ -86,10 +95,24 @@ void Player::Update(char* keys, char* preKeys) {
 
 	Move(keys);
 	ColligionMapChip();
+	weapon_->Update();
+
+	weapon_->SetStartPosX(worldPos_.x);
+	weapon_->SetStartPosY(worldPos_.y);
+
+	if (direction_ == LEFT) {
+		weapon_->SetEndPosX(worldPos_.x+72);
+		weapon_->SetEndPosY(worldPos_.y);
+	}
+
+	else 	if (direction_ == RIGHT) {
+		weapon_->SetEndPosX(worldPos_.x - 72);
+		weapon_->SetEndPosY(worldPos_.y);
+	}
 
 	//スクロール範囲の制限
 	const float LeftMost = 576.0f;
-	const float RightMost = (mapchip_->GetMapchipSize()) * mapxMax - (LeftMost * 2);
+	const float RightMost = (mapchip_->GetMapchipSize()) * mapxMax - (LeftMost * 1.5f);
 	const float TopMost = 432.0f * camela_->GetZoomLevel().y;
 	const float BottomMost = (mapchip_->GetMapchipSize()) *mapyMax-(TopMost/1.5f);
 
@@ -97,23 +120,23 @@ void Player::Update(char* keys, char* preKeys) {
 	//X
 	if (worldPos_.x >= LeftMost && worldPos_.x <= RightMost) {
 		
-		camela_->SetPosX(worldPos_.x- LeftMost);
+		camela_->SetPosX(worldPos_.x- LeftMost+ float(randX_));
 	}
 	//スクロール範囲外はスクロールしない
 	else {
 		if (worldPos_.x <= LeftMost) {
-			camela_->SetPosX(0);
+			camela_->SetPosX(float(randX_));
 		}
 
 		if (worldPos_.x >= RightMost) {
-			camela_->SetPosX(RightMost- LeftMost);
+			camela_->SetPosX(RightMost- LeftMost+ float(randX_));
 		}
 	}
 
 	//Y
 	if (worldPos_.y >= TopMost && worldPos_.y <= BottomMost) {
 		
-		camela_->SetPosY(worldPos_.y-TopMost);
+		camela_->SetPosY(worldPos_.y-TopMost+ float(randX_));
 	}
 	//スクロール範囲外はスクロールしない
 	else {
@@ -122,9 +145,31 @@ void Player::Update(char* keys, char* preKeys) {
 		}
 
 		if (worldPos_.y >= BottomMost) {
-			camela_->SetPosY(BottomMost - TopMost);
+			camela_->SetPosY(BottomMost - TopMost+ float(randX_));
 		}
 	}
+
+	if (weapon_->isShot_ == true && weapon_->coolTime_ == 0&&isShake_==false) {
+		isShake_ = true;
+		shakeTime_ = 5;
+
+	}
+	
+
+	if (isShake_ == true) {
+		shakeTime_ -= 1;
+
+		randX_= rand() % 6 - 5;
+		randY_ = rand() % 6-5;
+
+		if(shakeTime_<0){
+			shakeTime_ = 0;
+			randX_ = 0;
+			randY_ = 0;
+			isShake_ = false;
+		}
+	}
+
 
 	//ゲームスタート
 	GameStart(keys,preKeys);
@@ -143,23 +188,21 @@ void Player::Update(char* keys, char* preKeys) {
 
 void Player::Draw() {
 
+	weapon_->Draw();
+
 	//スクリーン座標に変換
 	screenVertex_ = Transform(localVertex_, wvpVpMatrix_);
 
 	if (direction_ == LEFT) {
-		newDrawQuad(screenVertex_, 0, 0, 48, 48, leftTexture_.Handle, RED);
+		newDrawQuad(screenVertex_, 0, 0, 48, 48, leftTexture_.Handle, WHITE);
 	}
 
 	else if (direction_ == RIGHT) {
-		newDrawQuad(screenVertex_, 0, 0, 48, 48, rightTexture_.Handle, RED);
+		newDrawQuad(screenVertex_, 0, 0, 48, 48, rightTexture_.Handle, WHITE);
 
 	}
 
-	Novice::ScreenPrintf(100, 100, "%f", worldPos_.x);
-	Novice::ScreenPrintf(100, 120, "%f", worldPos_.y);
-
-	Novice::ScreenPrintf(100, 150, "%f", screenVertex_.LeftTop.x);
-	Novice::ScreenPrintf(100, 170, "%f", camela_->GetPos().x);
+	
 }
 
 void Player::Move(char* keys) {
@@ -167,11 +210,13 @@ void Player::Move(char* keys) {
 	if (keys[DIK_D]) {
 		velocity_.x = 4;
 		direction_ = LEFT;
+		weapon_->SetDirection(LEFT);
 	}
 
 	else if (keys[DIK_A] && isStartBlockColligion_ == false) {
 		velocity_.x = -4;
 		direction_ = RIGHT;
+		weapon_->SetDirection(RIGHT);
 	}
 	if (isFlight_ == false) {
 
@@ -188,6 +233,7 @@ void Player::Move(char* keys) {
 				jump_.isEasing = true;
 				wait_.isEasing = false;
 				move_.isEasing = false;
+				landing_.easingRock = false;
 				jump_.easingPlus = 1;
 				localVertex_ = localVertexSave_;
 			}
@@ -263,6 +309,7 @@ void Player::ColligionMapChip() {
 			}
 			else {
 				isFlight_ = true;
+				landing_.easingRock = false;
 			}
 
 			//上にぶつかったら加速度と速度を0にする
@@ -293,6 +340,10 @@ void Player::ColligionMapChip() {
 			if (mapchip_->map[int(mapNum_.LeftBottom.y)][int(mapNum_.LeftBottom.x)] == BLOCK || mapchip_->map[int(mapNum_.RightBottom.y)][int(mapNum_.RightBottom.x)] == BLOCK) {
 
 				isFlight_ = false;
+				if (landing_.isEasing == false && landing_.easingRock == false) {
+					landing_.isEasing = true;
+					landing_.easingPlus = 1;
+				}
 			}
 
 			else {
@@ -335,6 +386,7 @@ void Player::MoveMotion(char* keys) {
 			move_.isEasing = true;
 			wait_.isEasing = false;
 			jump_.isEasing = false;
+			landing_.isEasing = false;
 			move_.easingPlus = 1;
 			localVertex_ = localVertexSave_;
 		}
@@ -350,8 +402,8 @@ void Player::MoveMotion(char* keys) {
 			move_.easingPlus = -move_.easingPlus;
 		}
 
-		localVertex_.LeftTop.y = easeInSine(move_.easingTime/5, localVertexSave_.LeftTop.y, localVertexSave_.LeftTop.y - 10);
-		localVertex_.RightTop.y = easeInSine(move_.easingTime/5, localVertexSave_.RightTop.y, localVertexSave_.RightTop.y - 10);
+		localVertex_.LeftTop.y = easeInSine(move_.easingTime / 5, localVertexSave_.LeftTop.y, localVertexSave_.LeftTop.y - 10);
+		localVertex_.RightTop.y = easeInSine(move_.easingTime / 5, localVertexSave_.RightTop.y, localVertexSave_.RightTop.y - 10);
 	}
 
 	//イージングをしてないとき
@@ -361,7 +413,7 @@ void Player::MoveMotion(char* keys) {
 	}
 }
 
-void Player::WaitMotion(char*keys) {
+void Player::WaitMotion(char* keys) {
 
 	//イージングフラグを立てる
 	if (wait_.isEasing == false) {
@@ -401,7 +453,6 @@ void Player::WaitMotion(char*keys) {
 	if (wait_.isEasing == false) {
 		wait_.easingPlus = 0;
 		wait_.easingTime = 0;
-
 	}
 }
 
@@ -429,7 +480,7 @@ void Player::JumpMotion() {
 		}
 
 		localVertex_.LeftBottom.y = easeInQuart(jump_.easingTime / 10, localVertexSave_.LeftBottom.y, localVertexSave_.LeftBottom.y - 15);
-		localVertex_.RightBottom.y = easeInQuart(jump_.easingTime / 10, localVertexSave_.RightBottom.y, localVertexSave_.RightBottom.y -15);
+		localVertex_.RightBottom.y = easeInQuart(jump_.easingTime / 10, localVertexSave_.RightBottom.y, localVertexSave_.RightBottom.y - 15);
 	}
 
 	//イージングをしてないとき
@@ -444,14 +495,8 @@ void Player::JumpMotion() {
 void Player::LandingMotion() {
 
 	//フラグ立てはマップチップの当たり判定のところで行う
+
 	
-	if (isFlight_ == false) {
-		//着地のモーションフラグを立てる
-		if (landing_.isEasing == false && landing_.easingRock == false) {
-			landing_.isEasing = true;
-			landing_.easingPlus = 1;
-		}
-	}
 
 	//イージングをする
 	if (landing_.isEasing == true) {
@@ -460,20 +505,20 @@ void Player::LandingMotion() {
 		wait_.isEasing = false;
 		move_.isEasing = false;
 
-		landing_.easingTime +=landing_.easingPlus;
+		landing_.easingTime += landing_.easingPlus;
 
 		//イージングやめる
-		if (landing_.easingTime >= 6) {			   
+		if (landing_.easingTime >= 16) {
 			landing_.isEasing = false;
 			landing_.easingRock = true;
 		}
 
-		localVertex_.LeftTop.y = easeOutCubic(landing_.easingTime/6, localVertexSave_.LeftTop.y + 35, localVertexSave_.LeftTop.y);
-		localVertex_.RightTop.y = easeOutCubic(landing_.easingTime / 6, localVertexSave_.RightTop.y + 35, localVertexSave_.RightTop.y);
-		localVertex_.LeftTop.x = easeOutCubic(landing_.easingTime / 6, localVertexSave_.LeftTop.x - 20, localVertexSave_.LeftTop.x);
-		localVertex_.RightTop.x = easeOutCubic(landing_.easingTime / 6, localVertexSave_.RightTop.x + 20, localVertexSave_.RightTop.x);
-		localVertex_.LeftBottom.x = easeOutCubic(landing_.easingTime / 6, localVertexSave_.LeftBottom.x - 20, localVertexSave_.LeftBottom.x);
-		localVertex_.RightBottom.x = easeOutCubic(landing_.easingTime / 6, localVertexSave_.RightBottom.x + 20, localVertexSave_.RightBottom.x);
+		localVertex_.LeftTop.y = easeOutCubic(landing_.easingTime / 16, localVertexSave_.LeftTop.y + 35, localVertexSave_.LeftTop.y);
+		localVertex_.RightTop.y = easeOutCubic(landing_.easingTime / 16, localVertexSave_.RightTop.y + 35, localVertexSave_.RightTop.y);
+		localVertex_.LeftTop.x = easeOutCubic(landing_.easingTime / 16, localVertexSave_.LeftTop.x - 20, localVertexSave_.LeftTop.x);
+		localVertex_.RightTop.x = easeOutCubic(landing_.easingTime / 16, localVertexSave_.RightTop.x + 20, localVertexSave_.RightTop.x);
+		localVertex_.LeftBottom.x = easeOutCubic(landing_.easingTime / 16, localVertexSave_.LeftBottom.x - 20, localVertexSave_.LeftBottom.x);
+		localVertex_.RightBottom.x = easeOutCubic(landing_.easingTime / 16, localVertexSave_.RightBottom.x + 20, localVertexSave_.RightBottom.x);
 	}
 
 	//イージングをしてないとき
@@ -481,11 +526,14 @@ void Player::LandingMotion() {
 		landing_.easingPlus = 0;
 		landing_.easingTime = 0;
 	}
-
 }
 
 //ゲームスタート
 void Player::GameStart(char* keys, char* preKeys) {
+
+	if (keys[DIK_F] && preKeys[DIK_A]) {
+
+	}
 
 	//ズームアウトするイージングをたてる　
 	if (isStartBlockColligion_ == true&&camela_->GetIsZoomOut()==false&&camela_->GetIsZoomIn() == false) {
@@ -497,7 +545,7 @@ void Player::GameStart(char* keys, char* preKeys) {
 	camela_->ZoomOut();
 
 	//スペース押したらわーぷイージング
-	if (keys[DIK_SPACE] && preKeys[DIK_SPACE]==0&& warp_.isEasing ==false&&camela_->GetIsZoomIn()==false&& camela_->GetZoomLevel().x >= 2.0f) {
+	if ( warp_.isEasing ==false&&camela_->GetIsZoomIn()==false&& camela_->GetZoomLevel().x >= 2.0f) {
 	
 		warp_.isEasing = true;
 		warp_.easingPlus = 1;

@@ -21,6 +21,7 @@ public:
 public:
 
 	Camela();
+	void Init();
 	void MakeCamelaMatrix();
 	void ZoomOut();
 	void ZoomIn();
@@ -40,6 +41,8 @@ public:
 	//setter
 	void SetPosX(float posX) { this->pos_.x=posX; }
 	void SetPosY(float posY) { this->pos_.y = posY; }
+	void SetIncPosX(float posX) { this->pos_.x += posX; }
+	void SetIncPosY(float posY) { this->pos_.y += posY; }
 	void SetZoomLevelX(float Zoom) { this->zoomLevel_.x = Zoom; }
 	void SetZoomLevelY(float Zoom) { this->zoomLevel_.y = Zoom; }
 	void SetIsZoomOut(bool isZoom) { this->zoomOut_.isEasing=isZoom; }
