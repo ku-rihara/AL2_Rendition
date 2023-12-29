@@ -207,13 +207,13 @@ void Player::Draw() {
 
 void Player::Move(char* keys) {
 	
-	if (keys[DIK_D]) {
+	if (keys[DIK_D]||keys[DIK_RIGHT]) {
 		velocity_.x = 4;
 		direction_ = LEFT;
 		weapon_->SetDirection(LEFT);
 	}
 
-	else if (keys[DIK_A] && isStartBlockColligion_ == false) {
+	else if (keys[DIK_A] ||keys[DIK_LEFT]) {
 		velocity_.x = -4;
 		direction_ = RIGHT;
 		weapon_->SetDirection(RIGHT);
@@ -223,7 +223,7 @@ void Player::Move(char* keys) {
 		acceleration_.y = 0;
 		velocity_.y = 0;
 
-		if (keys[DIK_W]) {
+		if (keys[DIK_W]||keys[DIK_UP]) {
 			velocity_.y = -15;
 			isFlight_ = true;
 			jumpSE_.isStart = true;
@@ -250,7 +250,7 @@ void Player::Move(char* keys) {
 
 	velocity_.y += acceleration_.y;
 
-	if (keys[DIK_A] || keys[DIK_D]) {
+	if (keys[DIK_A] || keys[DIK_D]||keys[DIK_LEFT]||keys[DIK_RIGHT]) {
 		worldPos_.x += velocity_.x;
 	}
 	worldPos_.y += velocity_.y;
@@ -381,7 +381,7 @@ void Player::MoveMotion(char* keys) {
 	//イージングフラグを立てる
 	if (move_.isEasing == false && jump_.isEasing == false) {
 
-		if (keys[DIK_A] || keys[DIK_D]) {
+		if (keys[DIK_A] || keys[DIK_D] || keys[DIK_LEFT] || keys[DIK_RIGHT]) {
 
 			move_.isEasing = true;
 			wait_.isEasing = false;
@@ -418,7 +418,7 @@ void Player::WaitMotion(char* keys) {
 	//イージングフラグを立てる
 	if (wait_.isEasing == false) {
 
-		if (keys[DIK_A] == 0 && keys[DIK_D] == 0 && isFlight_ == false && jump_.isEasing == false) {
+		if (keys[DIK_A] == 0 && keys[DIK_D] == 0&& keys[DIK_LEFT] == 0 && keys[DIK_RIGHT] == 0 && isFlight_ == false && jump_.isEasing == false) {
 			wait_.easingCoolTime = 10;
 			wait_.isEasing = true;
 			move_.isEasing = false;
