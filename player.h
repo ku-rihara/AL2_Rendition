@@ -32,6 +32,9 @@ private:
 	bool isFlight_;
 	bool isStartBlockColligion_;
 
+	//武器
+	
+
 
 	//効果音・画像
 	SE jumpSE_;
@@ -67,6 +70,4 @@ public:
 	void GameStart(char* keys, char* preKeys);
 
 	void SetCamelaMatrix(Camela* camelamatrix) { camela_ = camelamatrix; }
-
-
 };

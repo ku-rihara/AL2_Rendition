@@ -17,7 +17,7 @@ const int kWindowSizeY = 720;
 //const int mapDelimitX = 35;
 //const int mapDelimitY = 35;
 
-const int mapxMax = 100;
+const int mapxMax = 57;
 const int mapyMax = 30;
 
 //ブロックのタイプ

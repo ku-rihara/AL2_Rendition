@@ -26,6 +26,8 @@ public:
 	void ZoomIn();
 
 	//getter
+	
+
 	Matrix3x3 GetWorldMatrix()const { return worldMatrix_; }
 	Matrix3x3 GetViewMatrix()const { return viewMatrix_; }
 	Matrix3x3 GetOrthoMatrix()const { return orthoMatrix_; }
@@ -33,6 +35,7 @@ public:
 	Vector2 GetPos()const { return pos_; }
 	Vector2 GetZoomLevel()const { return zoomLevel_; }
 	bool GetIsZoomOut()const { return zoomOut_.isEasing; }
+	bool GetIsZoomIn()const { return zoomIn_.isEasing; }
 
 	//setter
 	void SetPosX(float posX) { this->pos_.x=posX; }

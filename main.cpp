@@ -5,6 +5,7 @@
 #include"player.h"
 #include"mapchip.h"
 #include"camelaMatrix.h"
+#include"Enemy.h"
 
 
 const char kWindowTitle[] = "LC1A_12_クリハラ_ケイタ_タイトル";
@@ -19,8 +20,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Mapchip* mapchip = new Mapchip();
 	Camela* camelaMatrix = new Camela;
 
+	
+	Enemy* enemy[10]{};
+
+	for (int i = 0; i < 10; i++) {
+		 enemy[i] = new Enemy(float(48*16)+i*(48*10), 200);
+		 enemy[i]->SetCamela(camelaMatrix);
+	}
+
 	player->SetCamelaMatrix(camelaMatrix);
 	mapchip->SetCamelaMatrix(camelaMatrix);
+
+	
 
 	// キー入力結果を受け取る箱
 	char keys[256] = {0};
@@ -41,7 +52,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		player->Update(keys,preKeys);
 		mapchip->Update();
 	
-
+		for (int i = 0; i < 10; i++) {
+			enemy[i]->Update();
+		}
 		///
 		/// ↑更新処理ここまで
 		///
@@ -50,6 +63,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓描画処理ここから
 		///
 		mapchip->Draw();
+		for (int i = 0; i < 10; i++) {
+			enemy[i]->Draw();
+		}
 		player->Draw();
 
 		for (int i = 0; i < 29; i++) {

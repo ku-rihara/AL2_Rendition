@@ -77,6 +77,12 @@
     <ClCompile Include="Colligion.cpp">
       <Filter>Colligion</Filter>
     </ClCompile>
+    <ClCompile Include="Weapon.cpp">
+      <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Enemy.cpp">
+      <Filter>KamataEngine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="C:\KamataEngine\DirectXGame\audio\Audio.h">
@@ -178,5 +184,9 @@
       <Filter>Colligion</Filter>
     </ClInclude>
     <ClInclude Include="Object.h" />
+    <ClInclude Include="Weapon.h">
+      <Filter>Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Enemy.h" />
   </ItemGroup>
 </Project>

@@ -118,11 +118,13 @@ xcopy C:\KamataEngine\DirectXGame\Resources "$(OutDirFullPath)NoviceResources" /
     <ClCompile Include="camalaMatrix.cpp" />
     <ClCompile Include="Colligion.cpp" />
     <ClCompile Include="Easing.cpp" />
+    <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="Function.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mapchip.cpp" />
     <ClCompile Include="Matrix3x3.cpp" />
     <ClCompile Include="player.cpp" />
+    <ClCompile Include="Weapon.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="C:\KamataEngine\DirectXGame\base\StringUtility.h" />
@@ -156,12 +158,14 @@ xcopy C:\KamataEngine\DirectXGame\Resources "$(OutDirFullPath)NoviceResources" /
     <ClInclude Include="Colligion.h" />
     <ClInclude Include="Creature.h" />
     <ClInclude Include="Easing.h" />
+    <ClInclude Include="Enemy.h" />
     <ClInclude Include="Function.h" />
     <ClInclude Include="mapchip.h" />
     <ClInclude Include="Matrix3x3.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="player.h" />
     <ClInclude Include="struct.h" />
+    <ClInclude Include="Weapon.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

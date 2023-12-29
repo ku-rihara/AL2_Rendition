@@ -4,7 +4,7 @@
 
 //class
 #include"player.h"
-#include"WarpBlock.h"
+#include"Object.h"
 
 
 class Colligion {

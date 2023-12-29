@@ -10,8 +10,8 @@ class Object {
 public:
 
 	//
-	Vertex vertexPos_;
-	Vertex localVertex_;
+	Vector2 worldPos;
+	Vector2 ScreenPos;
 
 	bool isColligion;
 

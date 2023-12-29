@@ -20,7 +20,7 @@ Player::Player() {
 void Player::Init() {
 
 	//座標
-	worldPos_ = { 48*2,48*5 };
+	worldPos_ = { 48*2,48*9 };
 	oldWorldPos_ = {};
 	fitMapsizePos_ = {};
 	screenVertex_ = {};
@@ -88,7 +88,7 @@ void Player::Update(char* keys, char* preKeys) {
 	ColligionMapChip();
 
 	//スクロール範囲の制限
-	const float LeftMost = 576.0f * camela_->GetZoomLevel().x;
+	const float LeftMost = 576.0f;
 	const float RightMost = (mapchip_->GetMapchipSize()) * mapxMax - (LeftMost * 2);
 	const float TopMost = 432.0f * camela_->GetZoomLevel().y;
 	const float BottomMost = (mapchip_->GetMapchipSize()) *mapyMax-(TopMost/1.5f);
@@ -488,7 +488,7 @@ void Player::LandingMotion() {
 void Player::GameStart(char* keys, char* preKeys) {
 
 	//ズームアウトするイージングをたてる　
-	if (isStartBlockColligion_ == true&&camela_->GetIsZoomOut()==false) {
+	if (isStartBlockColligion_ == true&&camela_->GetIsZoomOut()==false&&camela_->GetIsZoomIn() == false) {
 
 		camela_->SetIsZoomOut(true);
 		camela_->SetZoomOutPuls(1);
@@ -496,7 +496,8 @@ void Player::GameStart(char* keys, char* preKeys) {
 
 	camela_->ZoomOut();
 
-	if (keys[DIK_SPACE] && preKeys[DIK_SPACE]==0&& warp_.isEasing ==false ) {
+	//スペース押したらわーぷイージング
+	if (keys[DIK_SPACE] && preKeys[DIK_SPACE]==0&& warp_.isEasing ==false&&camela_->GetIsZoomIn()==false&& camela_->GetZoomLevel().x >= 2.0f) {
 	
 		warp_.isEasing = true;
 		warp_.easingPlus = 1;
@@ -508,12 +509,28 @@ void Player::GameStart(char* keys, char* preKeys) {
 		
 		if (warp_.easingTime >= 20) {
 			warp_.easingTime = 20;
-			worldPos_.x = 48 * 15;
+			worldPos_.x = (48 * 11)+size_.x/2;
+			warp_.easingPlus = -1;
+		}
+		//ワープイージング終えたら、ズームインする
+		if (warp_.easingTime < 0) {
+			warp_.easingTime = 0;
+			warp_.isEasing = false;
+			camela_->SetIsZoomOut(false);
+			camela_->SetZoomOutPuls(0);
+			
 		}
 
-		scale_.x = easeInBack(warp_.easingTime, 1, 0);
-		scale_.y = easeInBack(warp_.easingTime, 1, 0);
+		if (warp_.easingTime == 0 && camela_->GetIsZoomOut() == false&& camela_->GetIsZoomIn() == false) {
+			camela_->SetIsZoomIn(true);
+			camela_->SetZoomInPuls(1);
+		}
+		
+		scale_.x = easeInBack(warp_.easingTime/20, 1, 0);
+		scale_.y = easeInBack(warp_.easingTime/20, 1, 0);
 
 	}
+
+	camela_->ZoomIn();
 
 }

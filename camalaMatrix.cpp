@@ -16,6 +16,7 @@ Camela::Camela() {
 	 viewportMatrix_ = {};
 
 	 zoomOut_ = {};
+	 zoomIn_ = {};
  }
 
 void Camela::MakeCamelaMatrix() {
